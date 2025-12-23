@@ -18,6 +18,20 @@ public sealed class OfflineQueue : IDisposable
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
+        // Ensure file is not read-only if it exists
+        if (File.Exists(_dbPath))
+        {
+            try
+            {
+                var attributes = File.GetAttributes(_dbPath);
+                if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                {
+                    File.SetAttributes(_dbPath, attributes & ~FileAttributes.ReadOnly);
+                }
+            }
+            catch { /* ignore permission errors here, let sqlite fail if needed */ }
+        }
+
         _connString = new SqliteConnectionStringBuilder
         {
             DataSource = _dbPath,
