@@ -267,6 +267,7 @@ if (args.Contains("--once"))
 
     logger.LogInformation("Resolved SensorId={SensorId} Source={Source}", sensorId, source);
 
+    // Build Event Payload with enhanced fields
     var evt = new
     {
         sensor_id = sensorId,
@@ -280,16 +281,34 @@ if (args.Contains("--once"))
             fqdn = inv.Fqdn,
             os = inv.Os,
             os_version = inv.OsVersion,
+            os_build = inv.OsBuild,
             arch = inv.Arch,
             primary_ip = inv.PrimaryIp,
             ip_addrs = inv.IpAddrs,
-            domain = inv.Domain,
-            joined = inv.Joined,
-            aad_joined = inv.AadJoined
+            mac_addrs = inv.MacAddrs,
+            timezone = inv.Timezone,
+            boot_time = inv.BootTime,
+            uptime_seconds = inv.SystemUptimeSeconds
         },
         agent = new
         {
-            version = agentVersion
+            version = agentVersion,
+            uptime_seconds = inv.AgentUptimeSeconds,
+            last_restart = inv.AgentLastRestart
+        },
+        hardware = inv.Hardware != null ? new
+        {
+            cpu_model = inv.Hardware.CpuModel,
+            cpu_cores = inv.Hardware.CpuCores,
+            ram_total_gb = inv.Hardware.RamTotalGb,
+            disk_total_gb = inv.Hardware.DiskTotalGb,
+            disk_free_gb = inv.Hardware.DiskFreeGb
+        } : null,
+        identity = new
+        {
+            domain = inv.Domain,
+            joined = inv.Joined,
+            aad_joined = inv.AadJoined
         }
     };
 
